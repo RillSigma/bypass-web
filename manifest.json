@@ -1,0 +1,19 @@
+{
+  "name": "Link Opener",
+  "short_name": "Link Opener",
+  "description": "Buka tautan di browser dan ikuti alur resmi situs tujuan.",
+  "lang": "id",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101426",
+  "theme_color": "#101426",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
