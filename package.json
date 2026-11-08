@@ -1,0 +1,13 @@
+{
+  "name": "safe-shortlink",
+  "version": "1.0.0",
+  "description": "Safe redirect short-link service for URLs you own",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "nanoid": "^5.0.1"
+  }
+}

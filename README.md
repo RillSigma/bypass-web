@@ -1,25 +1,31 @@
-# Link Opener
+# Safe Shortlink
 
-A mobile-friendly static website for opening a user-provided HTTP(S) URL in a new browser tab.
+A small Node.js app that creates short links for URLs you own and redirects with HTTP 302. It is designed for safe, transparent redirects only.
 
 ## Features
-
-- Responsive layout for phones and desktop
-- Paste-link button, URL validation, and browser-based opening
-- Installable/offline-capable PWA shell on supported browsers
-- Privacy-friendly: no URL is sent to a third-party redirect-checking service
-- Indonesian usage guidance
+- Create short links for valid http/https destinations
+- Store links in a local JSON file
+- Redirect with a normal HTTP 302 response
+- Simple browser UI for creating and copying links
+- Not designed to bypass ads, timers, CAPTCHA, or anti-bot protections on third-party sites
 
 ## Run locally
 
-Open `index.html` in a browser, or serve this directory with any static file server. Service workers and PWA installation require HTTPS (or localhost).
+```bash
+npm install
+node server.js
+```
 
-## Publish with GitHub Pages
+Open:
 
-In the repository, open **Settings → Pages**. Select **Deploy from a branch**, choose `main` and `/(root)`, then save. GitHub Pages will provide the published site URL after deployment completes.
+```text
+http://localhost:3000
+```
 
-## Scope and limitations
+## Deploy
 
-The page opens the submitted URL in the user's browser. Browsers follow ordinary HTTP redirects when the destination sends them. The page does not bypass ads, timers, CAPTCHA, login, verification, or other interstitial steps, and does not extract hidden destinations from intermediary pages. Complete any such steps through the site's normal flow.
+This app can be deployed to services like Render, Railway, or any Node.js hosting platform.
 
-This project does not include an AI service. A static GitHub Pages site cannot securely store a private AI API key. Any future AI feature should be limited to general safe-use guidance, use a secured backend, and must not automate or bypass another site's interstitials or protections.
+## Safety note
+
+This project is intentionally limited to redirecting URLs you own or are authorized to manage. It does not bypass interstitial pages, login gates, paywalls, ads, CAPTCHA, or other protections on third-party websites.

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safe Shortlink</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --muted: #cbd5e1;
+      --line: #334155;
+      --accent: #34d399;
+      --accent-2: #60a5fa;
+      --text: #f8fafc;
+      --warn: #fbbf24;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #0b1120 0%, #111827 100%);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(760px, 100%);
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 5vw, 2.8rem);
+    }
+
+    p {
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0 0 18px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    input, button {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      font-size: 16px;
+      padding: 14px 15px;
+      outline: none;
+    }
+
+    input {
+      background: var(--panel-2);
+      color: var(--text);
+    }
+
+    input:focus {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    }
+
+    button {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border: none;
+      color: #04131b;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 18px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      min-height: 72px;
+      word-break: break-word;
+      color: var(--text);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .secondary {
+      background: #1e293b;
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+
+    .warning {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--warn);
+      background: rgba(251, 191, 36, 0.08);
+      color: #fde68a;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 560px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Safe Shortlink</h1>
+    <p>Masukkan URL asli Anda. Sistem akan membuat short link aman yang mengarahkan ke tujuan tanpa menembus halaman perantara dari situs pihak ketiga.</p>
+
+    <div class="row">
+      <input id="target" type="url" placeholder="https://contoh.com/halaman" />
+      <button id="createBtn" type="button">Buat short link</button>
+    </div>
+
+    <div class="result" id="result">Belum ada shortlink.</div>
+
+    <div class="actions">
+      <button class="secondary" id="copyBtn" type="button">Salin hasil</button>
+      <button class="secondary" id="openBtn" type="button">Buka link</button>
+    </div>
+
+    <div class="warning">
+      Catatan: ini hanya untuk URL yang Anda miliki atau yang Anda berwenang. Tidak ada fitur menembus iklan, timer, CAPTCHA, atau anti-bot pada situs pihak ketiga.
+    </div>
+  </div>
+
+  <script>
+    const targetInput = document.getElementById('target');
+    const createBtn = document.getElementById('createBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const openBtn = document.getElementById('openBtn');
+    const result = document.getElementById('result');
+
+    let latestShortUrl = '';
+
+    async function createShortLink() {
+      const target = targetInput.value.trim();
+
+      if (!target) {
+        result.textContent = 'Masukkan URL tujuan terlebih dahulu.';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/links', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Gagal membuat short link.');
+        }
+
+        latestShortUrl = data.shortUrl;
+        result.innerHTML = `
+          <strong>Short link dibuat:</strong><br>
+          <a href="${latestShortUrl}" target="_blank" rel="noopener noreferrer" style="color:#7dd3fc;">${latestShortUrl}</a><br><br>
+          <strong>Target:</strong><br>
+          ${data.target}
+        `;
+      } catch (error) {
+        result.textContent = error.message;
+      }
+    }
+
+    createBtn.addEventListener('click', createShortLink);
+
+    copyBtn.addEventListener('click', async () => {
+      if (!latestShortUrl) {
+        result.textContent = 'Tidak ada short link untuk disalin.';
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(latestShortUrl);
+        result.textContent = 'Short link berhasil disalin ke clipboard.';
+      } catch {
+        result.textContent = 'Gagal menyalin ke clipboard. Salin manual dari hasil di atas.';
+      }
+    });
+
+    openBtn.addEventListener('click', () => {
+      if (!latestShortUrl) {
+        result.textContent = 'Tidak ada short link untuk dibuka.';
+        return;
+      }
+      window.open(latestShortUrl, '_blank', 'noopener,noreferrer');
+    });
+  </script>
+</body>
+</html>
